@@ -1,9 +1,13 @@
 package com.example.sophie.remumber;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +17,7 @@ import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.telephony.SmsManager;
@@ -36,6 +41,8 @@ import java.util.Date;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     static final int REQUEST_SMS_PERMISSION = 2;
+    static final String channel_id = "remumber_channel";
+    NotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +50,24 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Set up notification channel
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // The user-visible name of the channel.
+        CharSequence name = getString(R.string.channel_name);
+        // The user-visible description of the channel.
+        String description = getString(R.string.channel_description);
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(channel_id, name, importance);
+        // Configure the notification channel.
+        mChannel.setDescription(description);
+        mChannel.enableLights(true);
+        // Sets the notification light color for notifications posted to this
+        // channel, if the device supports this feature.
+        mChannel.setLightColor(Color.RED);
+        mChannel.enableVibration(true);
+        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        mNotificationManager.createNotificationChannel(mChannel);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -53,6 +78,7 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // Get permissions
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -158,5 +184,15 @@ public class HomeActivity extends AppCompatActivity
 
     private void sendSMS() {
         sendSMS("07988084064", "Hi!!!");
+        // Create notification
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getApplicationContext(), channel_id);
+        // A small icon, set by setSmallIcon().
+        // A title, set by setContentTitle().
+        // Detail text, set by setContentText().
+        builder.setSmallIcon(17301505);
+        builder.setContentTitle("ReMUMber");
+        builder.setContentText("You just sent a text using ReMUMber!");
+        Notification notif = builder.build();
+        mNotificationManager.notify(1, notif);
     }
 }
