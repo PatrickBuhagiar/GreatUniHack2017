@@ -23,11 +23,13 @@ public class PrefManager {
         editor.commit();
     }
 
+    //method to access set number globally through new PrefManager(this).getName
     public String getName() {
         SharedPreferences sharedPreferences = context.getSharedPreferences("MothersDetails", Context.MODE_PRIVATE);
         return sharedPreferences.getString("Name", "");
     }
 
+    //like getName
     public String getNumber() {
         SharedPreferences sharedPreferences = context.getSharedPreferences("MothersDetails", Context.MODE_PRIVATE);
         return sharedPreferences.getString("Number", "");
