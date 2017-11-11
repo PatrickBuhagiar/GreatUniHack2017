@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -244,6 +245,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         mNotificationManager.notify(1, notif);
     }
 
+
+    public void openSetUp(View view) {
+        //return to the main menu
+
+        Intent intent = new Intent(this, SetUpActivity.class);
+        startActivity(intent);
+
+    }
 
     //Location methods
     private void buildLocationSettingsRequest() {
