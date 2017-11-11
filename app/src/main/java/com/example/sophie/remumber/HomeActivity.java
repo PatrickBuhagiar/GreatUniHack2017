@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -101,8 +102,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private Boolean mRequestingLocationUpdates;
 
     static final String channel_id = "remumber_channel";
-
-    NotificationManager mNotificationManager;
+    public static NotificationManager mNotificationManager;
+    public int notifId = 1;
 
 
     //UI SHIT for location
@@ -198,6 +199,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         createLocationCallback();
         createLocationRequest();
         buildLocationSettingsRequest();
+        createNotification();
     }
 
     /**
@@ -399,6 +401,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private void sendSMS() {
         sendSMS("07988084064", "Hi!!!");
+    }
+
+    private void createNotification() {
         // Create notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getApplicationContext(), channel_id);
         // A small icon, set by setSmallIcon().
@@ -407,10 +412,26 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         builder.setSmallIcon(17301505);
         builder.setContentTitle("ReMUMber");
         builder.setContentText("You just sent a text using ReMUMber!");
+
+        // Add sendSMS action
+        Intent smsIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
+        PendingIntent smsPendingIntent =
+                PendingIntent.getActivity(this.getApplicationContext(), notifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Action smsAction =
+                new NotificationCompat.Action.Builder(17301505, "Send SMS", smsPendingIntent).build();
+        builder.addAction(smsAction);
         Notification notif = builder.build();
         mNotificationManager.notify(1, notif);
     }
 
+
+    public void openSetUp(View view) {
+        //return to the main menu
+
+        Intent intent = new Intent(this, SetUpActivity.class);
+        startActivity(intent);
+
+    }
 
     //LOCATION METHODS
 
@@ -464,7 +485,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 super.onLocationResult(locationResult);
 
                 mCurrentLocation = locationResult.getLastLocation();
-                System.out.println("CURRENT LOCATION: Altitude " + mCurrentLocation.getAltitude() + ", latitude: " + mCurrentLocation.getLatitude() + ", longitude: " + mCurrentLocation.getLongitude() + ", accuracy: " + mCurrentLocation.getAccuracy() );
+                System.out.println("CURRENT LOCATION: Altitude " + mCurrentLocation.getAltitude() + ", latitude: " + mCurrentLocation.getLatitude() + ", longitude: " + mCurrentLocation.getLongitude() + ", accuracy: " + mCurrentLocation.getAccuracy());
                 mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
 //                updateLocationUI();
             }

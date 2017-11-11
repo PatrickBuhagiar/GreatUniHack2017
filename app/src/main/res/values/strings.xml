@@ -10,6 +10,25 @@
 
     <string name="channel_name">ReMUMber Notifications</string>
     <string name="channel_description">ReMUMber Notifications</string>
+    <string name="title_activity_set_up">SetUpActivity</string>
+
+
+    <string name="set_up_title">Set Up ReMUMber</string>
+    <string name="set_up_name">Name:</string>
+    <string name="set_up_number">Number:</string>
+    <string name="set_up_pref">MUM-Bot Preferences:</string>
+    <string name="set_gcal">GCal Events</string>
+    <string name="set_FBevent">FB Events</string>
+    <string name="set_GPS">GPS Events</string>
+    <string name="set_weather">Weather</string>
+
+    <string name="save_reMUMber_pref">Save</string>
+
+    <string name="savedName">Not Set</string>
+    <string name="savedNumber">Not Set</string>
+
+    <string name="set_up_back_button">Back</string>
+
 
     <string name="latitude_label">Latitude</string>
     <string name="longitude_label">Longitude</string>
