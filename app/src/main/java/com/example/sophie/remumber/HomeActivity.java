@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -42,7 +43,8 @@ public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     static final int REQUEST_SMS_PERMISSION = 2;
     static final String channel_id = "remumber_channel";
-    NotificationManager mNotificationManager;
+    public static NotificationManager mNotificationManager;
+    public int notifId = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +94,7 @@ public class HomeActivity extends AppCompatActivity
                 sendSMS();
             }
         });
+        createNotification();
     }
 
     @Override
@@ -184,6 +187,9 @@ public class HomeActivity extends AppCompatActivity
 
     private void sendSMS() {
         sendSMS("07988084064", "Hi!!!");
+    }
+
+    private void createNotification() {
         // Create notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getApplicationContext(), channel_id);
         // A small icon, set by setSmallIcon().
@@ -192,6 +198,14 @@ public class HomeActivity extends AppCompatActivity
         builder.setSmallIcon(17301505);
         builder.setContentTitle("ReMUMber");
         builder.setContentText("You just sent a text using ReMUMber!");
+
+        // Add sendSMS action
+        Intent smsIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
+        PendingIntent smsPendingIntent =
+                PendingIntent.getActivity(this.getApplicationContext(), notifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Action smsAction =
+                new NotificationCompat.Action.Builder(17301505, "Send SMS", smsPendingIntent).build();
+        builder.addAction(smsAction);
         Notification notif = builder.build();
         mNotificationManager.notify(1, notif);
     }
