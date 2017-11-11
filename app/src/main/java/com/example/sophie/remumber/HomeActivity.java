@@ -233,7 +233,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void sendSMS() {
-        sendSMS("07988084064", "Hi!!!");
+        String message = "Hi " + new PrefManager(this).getName();
+        System.out.println(message);
+        sendSMS("07988084064", message);
     }
 
     private void createNotification() {
