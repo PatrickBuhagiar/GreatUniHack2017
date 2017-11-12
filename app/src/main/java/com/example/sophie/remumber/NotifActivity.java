@@ -20,12 +20,10 @@ public class NotifActivity extends Activity {
         Intent launchIntent = getIntent();
         SmsManager sms = SmsManager.getDefault();
         int notifType = launchIntent.getIntExtra(NOTIF_TYPE, 1);
-        if(notifType == HomeActivity.locationNotifId) {
-            String message = "Hi " + launchIntent.getStringExtra(NAME_KEY) +
-                    ", I've just arrived in " + launchIntent.getStringExtra(LOCATION_KEY) + "!";
-            sms.sendTextMessage(launchIntent.getStringExtra(PHONE_KEY), null,
-                    message, null, null);
-        } else if(notifType == HomeActivity.weatherNotifId) {
+        if(notifType == HomeActivity.locationNotifId) {String message = "Hi " + launchIntent.getStringExtra(NAME_KEY) +
+                 launchIntent.getStringExtra(LOCATION_KEY) ;
+        sms.sendTextMessage(launchIntent.getStringExtra(PHONE_KEY), null,
+                message, null, null);} else if(notifType == HomeActivity.weatherNotifId) {
             System.out.println("TODO: send weather message");
         }
         Intent intent = new Intent(this.getApplicationContext(), HomeActivity.class);
