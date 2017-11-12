@@ -28,11 +28,15 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -172,6 +176,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        // Add listener for location change
+        EditText locationField = (EditText) findViewById(R.id.location_text);
+        Button locationButton = (Button) findViewById(R.id.location_button);
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createNotification();
+            }
+        });
+
 
         //location UI
         // Locate the UI widgets.
@@ -199,7 +213,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         createLocationCallback();
         createLocationRequest();
         buildLocationSettingsRequest();
-        createNotification();
+        startLocationUpdates();
     }
 
     /**
