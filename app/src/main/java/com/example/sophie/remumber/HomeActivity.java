@@ -529,7 +529,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         smsIntent.putExtra(NotifActivity.PHONE_KEY, (new PrefManager(this).getNumber()));
         smsIntent.putExtra(NotifActivity.NAME_KEY, (new PrefManager(this).getName()));
         PendingIntent smsPendingIntent =
-                PendingIntent.getActivity(this.getApplicationContext(), notifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.getActivity(this.getApplicationContext(), locationNotifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action smsAction =
                 new NotificationCompat.Action.Builder(17301505, "Send SMS", smsPendingIntent).build();
         builder.addAction(smsAction);
