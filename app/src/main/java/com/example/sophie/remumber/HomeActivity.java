@@ -15,7 +15,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.ResultReceiver;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -35,6 +37,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -53,6 +56,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.text.BreakIterator;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -104,8 +108,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
 
     private EditText mLocationField;
-    private boolean mResultReceiver;
-    private boolean mLastLocation;
+    private AddressResultReceiver mResultReceiver;
+    private String mAddressOutput;
+    private boolean mAddressRequested;
+    private TextView mLocationAddressTextView;
 
     public HomeActivity() {
     }
@@ -171,6 +177,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         });
 
         //Location initialisation
+        mLocationAddressTextView = (TextView) findViewById(R.id.location_address_view);
+        mResultReceiver = new AddressResultReceiver(new Handler());
         mRequestingLocationUpdates = true;
 
         updateValuesFromBundle(savedInstanceState);
@@ -523,7 +531,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = new Intent(this, FetchAddressIntentService.class);
 
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
-        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mCurrentLocation);
         startService(intent);
 
     }
@@ -620,4 +628,33 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 });
     }
 
+
+    /**
+     * Updates the address in the UI.
+     */
+    private void displayAddressOutput() {
+        mLocationAddressTextView.setText(mAddressOutput);
+    }
+    /**
+     * Receiver for data sent from FetchAddressIntentService.
+     */
+    private class AddressResultReceiver extends ResultReceiver {
+        AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        /**
+         *  Receives data sent from FetchAddressIntentService and updates the UI in MainActivity.
+         */
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string or an error message sent from the intent service.
+            mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+            displayAddressOutput();
+
+            // Reset. Enable the Fetch Address button and stop showing the progress bar.
+            mAddressRequested = false;
+        }
+    }
 }
