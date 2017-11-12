@@ -174,7 +174,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         smsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendSMS();
+                sendLocationSMS();
             }
         });
 
@@ -211,6 +211,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mSettingsClient = LocationServices.getSettingsClient(this);
+
+        //new PrefManager(this).saveMotherDetails("Mum", "07988084064");
 
         createLocationCallback();
         createLocationRequest();
@@ -415,10 +417,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         System.out.println("Message sent");
     }
 
-    private void sendSMS() {
-        String message = "Hi " + new PrefManager(this).getName();
+    private void sendLocationSMS() {
+        String message = "Hi " + new PrefManager(this).getName()
+                + ", I've just arrived in " + mLocationField.getText().toString() + "!";
         System.out.println(message);
-        sendSMS("07988084064", message);
+        sendSMS(new PrefManager(this).getNumber(), message);
     }
 
     private void createNotification() {
@@ -429,11 +432,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // Detail text, set by setContentText().
         builder.setSmallIcon(17301505);
         builder.setContentTitle("ReMUMber");
-        builder.setContentText("You should text your mum saying you've just arrived in "
+        builder.setContentText("You should text " + (new PrefManager(this).getName()) + " saying you've just arrived in "
                 + mLocationField.getText().toString() + "!");
 
         // Add sendSMS action
         Intent smsIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
+        smsIntent.putExtra(NotifActivity.LOCATION_KEY, mLocationField.getText().toString());
+        smsIntent.putExtra(NotifActivity.PHONE_KEY, (new PrefManager(this).getNumber()));
+        smsIntent.putExtra(NotifActivity.NAME_KEY, (new PrefManager(this).getName()));
         PendingIntent smsPendingIntent =
                 PendingIntent.getActivity(this.getApplicationContext(), notifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action smsAction =
