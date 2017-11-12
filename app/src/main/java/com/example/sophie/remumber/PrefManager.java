@@ -23,6 +23,16 @@ public class PrefManager {
         editor.commit();
     }
 
+    public void saveMotherDetails(String name, String phoneNumber, String date, String month) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MothersDetails", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("Name", name);
+        editor.putString("Number", phoneNumber);
+        editor.putString("birthDate", date);
+        editor.putString("birthMonth", month);
+        editor.commit();
+    }
+
     //method to access set number globally through new PrefManager(this).getName
     public String getName() {
         SharedPreferences sharedPreferences = context.getSharedPreferences("MothersDetails", Context.MODE_PRIVATE);
@@ -33,6 +43,11 @@ public class PrefManager {
     public String getNumber() {
         SharedPreferences sharedPreferences = context.getSharedPreferences("MothersDetails", Context.MODE_PRIVATE);
         return sharedPreferences.getString("Number", "");
+    }
+
+    public String getBirthDate() {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MothersDetails", Context.MODE_PRIVATE);
+        return sharedPreferences.getString("birthDate", "") + " " + sharedPreferences.getString("birthMonth", "");
     }
 
     public boolean sufficientMotherDetails() {

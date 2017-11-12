@@ -21,13 +21,15 @@ public class SetUpActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        testSetInfo();
         //if ((new PrefManager(this).sufficientMotherDetails()) == TRUE ){
 
-            TextView textView = (TextView) findViewById(R.id.textView8);
-            textView.setText(new PrefManager(this).getName());
+            //TextView textView = (TextView) findViewById(R.id.textView8);
+            //textView.setText(new PrefManager(this).getName());
 
-            TextView textViewNum = (TextView) findViewById(R.id.textView9);
-            textViewNum.setText(new PrefManager(this).getNumber());
+            //TextView textViewNum = (TextView) findViewById(R.id.textView9);
+            //textViewNum.setText(new PrefManager(this).getNumber());
 
         //}
 
@@ -39,16 +41,20 @@ public class SetUpActivity extends AppCompatActivity {
         //get input information
         EditText editText = (EditText) findViewById(R.id.editText);
         EditText editText4 = (EditText) findViewById(R.id.editText4);
+        EditText editText2 = (EditText) findViewById(R.id.editText2);
+        EditText editText3 = (EditText) findViewById(R.id.editText3);
 
         //save input information into PrefManager to make info global
-        new PrefManager(this).saveMotherDetails(editText.getText().toString(),editText4.getText().toString());
+        new PrefManager(this).saveMotherDetails(editText.getText().toString(),editText4.getText().toString(), editText2.getText().toString(), editText3.getText().toString() );
 
         //display saved information from global prefmanager to confirm completion
-        TextView textView = (TextView) findViewById(R.id.textView8);
-        textView.setText(new PrefManager(this).getName());
+        //TextView textView = (TextView) findViewById(R.id.textView8);
+        //textView.setText(new PrefManager(this).getName() + " " + new PrefManager(this).getNumber());
 
-        TextView textViewNum = (TextView) findViewById(R.id.textView9);
-        textViewNum.setText(new PrefManager(this).getNumber());
+        //TextView textViewNum = (TextView) findViewById(R.id.textView9);
+        //textViewNum.setText(new PrefManager(this).getBirthDate());
+
+        testSetInfo();
 
     }
 
@@ -59,4 +65,15 @@ public class SetUpActivity extends AppCompatActivity {
         startActivity(intent);
 
     }
+
+    public void testSetInfo () {
+
+        TextView textView = (TextView) findViewById(R.id.textView8);
+        textView.setText(new PrefManager(this).getName() + " " + new PrefManager(this).getNumber());
+
+        TextView textViewNum = (TextView) findViewById(R.id.textView9);
+        textViewNum.setText(new PrefManager(this).getBirthDate());
+
+    }
+
 }
