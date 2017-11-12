@@ -55,6 +55,7 @@ import com.google.android.gms.tasks.Task;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -170,6 +171,23 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        //add listener for birthday change
+        EditText birthDate = (EditText) findViewById(R.id.birthdate_text);
+        Button birthDateButton = (Button) findViewById(R.id.button3);
+        birthDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+
+            public void onClick(View view) {
+
+                System.out.println(birthDate.getText().toString());
+                if (Objects.equals(birthDate.getText().toString(), getBirthDate())){
+                    sendBirthDayNotif();
+                }
+
+
+            }
+        });
+
         //Location initialisation
         mRequestingLocationUpdates = true;
 
@@ -184,6 +202,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         createLocationRequest();
         buildLocationSettingsRequest();
         startLocationUpdates();
+
+    }
+
+    private String getBirthDate() {
+        return new PrefManager(this).getBirthDate();
     }
 
     /**
@@ -400,7 +423,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         // Add sendSMS action
         Intent smsIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
-        smsIntent.putExtra(NotifActivity.LOCATION_KEY, mLocationField.getText().toString());
+        smsIntent.putExtra(NotifActivity.LOCATION_KEY, ", I've just arrived in " + mLocationField.getText().toString() + "!");
         smsIntent.putExtra(NotifActivity.PHONE_KEY, (new PrefManager(this).getNumber()));
         smsIntent.putExtra(NotifActivity.NAME_KEY, (new PrefManager(this).getName()));
         PendingIntent smsPendingIntent =
@@ -410,6 +433,31 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         builder.addAction(smsAction);
         Notification notif = builder.build();
         mNotificationManager.notify(1, notif);
+    }
+
+    private void sendBirthDayNotif(){
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getApplicationContext(), channel_id);
+        // A small icon, set by setSmallIcon().
+        // A title, set by setContentTitle().
+        // Detail text, set by setContentText().
+        builder.setSmallIcon(17301505);
+        builder.setContentTitle("ReMUMber");
+        builder.setContentText("It's" + (new PrefManager(this).getName()) + " birthday! Send a message?!");
+
+        // Add sendSMS action
+        Intent smsIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
+        smsIntent.putExtra(NotifActivity.LOCATION_KEY, ", Happy Birthday! Have a great day :)");
+        smsIntent.putExtra(NotifActivity.PHONE_KEY, (new PrefManager(this).getNumber()));
+        smsIntent.putExtra(NotifActivity.NAME_KEY, (new PrefManager(this).getName()));
+        PendingIntent smsPendingIntent =
+                PendingIntent.getActivity(this.getApplicationContext(), notifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Action smsAction =
+                new NotificationCompat.Action.Builder(17301505, "Send SMS", smsPendingIntent).build();
+        builder.addAction(smsAction);
+        Notification notif = builder.build();
+        mNotificationManager.notify(1, notif);
+
     }
 
 

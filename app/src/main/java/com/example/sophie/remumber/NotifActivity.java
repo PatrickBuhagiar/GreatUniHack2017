@@ -18,8 +18,7 @@ public class NotifActivity extends Activity {
         // Send sms
         Intent launchIntent = getIntent();
         SmsManager sms = SmsManager.getDefault();
-        String message = "Hi " + launchIntent.getStringExtra(NAME_KEY) +
-                ", I've just arrived in " + launchIntent.getStringExtra(LOCATION_KEY) + "!";
+        String message = "Hi " + launchIntent.getStringExtra(NAME_KEY) + launchIntent.getStringExtra(LOCATION_KEY);
         sms.sendTextMessage(launchIntent.getStringExtra(PHONE_KEY), null,
                 message, null, null);
         Intent intent = new Intent(this.getApplicationContext(), HomeActivity.class);
