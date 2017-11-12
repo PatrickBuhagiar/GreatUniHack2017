@@ -2,6 +2,7 @@ package com.example.sophie.remumber;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -40,6 +41,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -56,6 +64,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.BreakIterator;
 import java.text.DateFormat;
 import java.util.Date;
@@ -105,13 +119,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     static final String channel_id = "remumber_channel";
     public static NotificationManager mNotificationManager;
-    public int notifId = 1;
+    public static final int locationNotifId = 1;
+    public static final int weatherNotifId = 2;
 
-
-    private EditText mLocationField;
+    public static EditText mLocationField;
     private AddressResultReceiver mResultReceiver;
     private String mAddressOutput;
     private TextView mLocationAddressTextView;
+
+    public static Weather.WeatherResponse weatherResponse;
+    private String locString = "York";
 
     public HomeActivity() {
     }
@@ -173,6 +190,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 createNotification();
+
             }
         });
 
@@ -203,7 +221,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mSettingsClient = LocationServices.getSettingsClient(this);
 
-        //new PrefManager(this).saveMotherDetails("Mum", "07988084064");
+        //new PrefManager(this).saveMotherDetails("Mum", "07988084064")
 
         createLocationCallback();
         createLocationRequest();
@@ -214,6 +232,41 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private String getBirthDate() {
         return new PrefManager(this).getBirthDate();
+
+    }
+
+    private void getWeatherRequest() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        if(!mLocationField.getText().toString().isEmpty()) {
+            locString = mLocationField.getText().toString();
+        }
+        String url = "http://api.openweathermap.org/data/2.5/weather?q=" +
+                locString + "&appid=a85717f57b6bd30e011747de59dc3a60";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        setWeatherResponse(response);
+                        createNotification();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+    private void setWeatherResponse(String response) {
+        try {
+            weatherResponse = new ObjectMapper().readValue(response, Weather.WeatherResponse.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -417,6 +470,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         sendSMS(new PrefManager(this).getNumber(), message);
     }
 
+    private void sendWeatherSMS() {
+        while (weatherResponse== null) {
+
+        }
+        String message = "Hi " + new PrefManager(this).getName()
+                + ", the weather in " + mLocationField.getText().toString() + " is " + weatherResponse.weather + "!";
+        System.out.println(message);
+        sendSMS(new PrefManager(this).getNumber(), message);
+    }
+
     private void createNotification() {
         // Create notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getApplicationContext(), channel_id);
@@ -425,18 +488,26 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // Detail text, set by setContentText().
         builder.setSmallIcon(17301505);
         builder.setContentTitle("ReMUMber");
-        builder.setContentText("You should text " + (new PrefManager(this).getName()) + " saying you've just arrived in "
-                + mLocationField.getText().toString() + "!");
+        builder.setContentText("You should text " + (new PrefManager(this).getName()) +  "!");
 
         // Add sendSMS action
-        Intent smsIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
+        Intent locationIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
+        locationIntent.putExtra(NotifActivity.NOTIF_TYPE, locationNotifId);
+        locationIntent.putExtra(NotifActivity.LOCATION_KEY, mLocationField.getText().toString());
+        locationIntent.putExtra(NotifActivity.PHONE_KEY, (new PrefManager(this).getNumber()));
+        locationIntent.putExtra(NotifActivity.NAME_KEY, (new PrefManager(this).getName()));
+        PendingIntent smsPendingIntent =
+                PendingIntent.getActivity(this.getApplicationContext(), locationNotifId, locationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        /*Intent smsIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
         smsIntent.putExtra(NotifActivity.LOCATION_KEY, ", I've just arrived in " + mLocationField.getText().toString() + "!");
         smsIntent.putExtra(NotifActivity.PHONE_KEY, (new PrefManager(this).getNumber()));
         smsIntent.putExtra(NotifActivity.NAME_KEY, (new PrefManager(this).getName()));
         PendingIntent smsPendingIntent =
-                PendingIntent.getActivity(this.getApplicationContext(), notifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.getActivity(this.getApplicationContext(), notifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);*/
+
         NotificationCompat.Action smsAction =
-                new NotificationCompat.Action.Builder(17301505, "Send SMS", smsPendingIntent).build();
+                new NotificationCompat.Action.Builder(17301505, "Send Location SMS", smsPendingIntent).build();
         builder.addAction(smsAction);
         Notification notif = builder.build();
         mNotificationManager.notify(1, notif);
@@ -458,7 +529,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         smsIntent.putExtra(NotifActivity.PHONE_KEY, (new PrefManager(this).getNumber()));
         smsIntent.putExtra(NotifActivity.NAME_KEY, (new PrefManager(this).getName()));
         PendingIntent smsPendingIntent =
-                PendingIntent.getActivity(this.getApplicationContext(), notifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.getActivity(this.getApplicationContext(), locationNotifId, smsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action smsAction =
                 new NotificationCompat.Action.Builder(17301505, "Send SMS", smsPendingIntent).build();
         builder.addAction(smsAction);
