@@ -34,5 +34,101 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/start_updates_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:onClick="startUpdatesButtonHandler"
+                android:text="@string/start_updates" />
+
+            <Button
+                android:id="@+id/stop_updates_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginStart="@dimen/small_margin"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:gravity="center"
+                android:onClick="stopUpdatesButtonHandler"
+                android:text="@string/stop_updates" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/latitude_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_margin"
+            android:textSize="@dimen/default_text_size" />
+
+        <TextView
+            android:id="@+id/longitude_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_margin"
+            android:textSize="@dimen/default_text_size" />
+
+        <TextView
+            android:id="@+id/last_update_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_margin"
+            android:textSize="@dimen/default_text_size" />
+
+        <ExpandableListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/location_text"
+        android:layout_width="144dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/location"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.335" />
+
+    <Button
+        android:id="@+id/location_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set"
+        app:layout_constraintBottom_toTopOf="@+id/sms_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.368"
+        app:layout_constraintStart_toEndOf="@+id/location_text"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.166" />
+
 
 </android.support.constraint.ConstraintLayout>
