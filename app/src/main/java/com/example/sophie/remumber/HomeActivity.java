@@ -110,7 +110,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private EditText mLocationField;
     private AddressResultReceiver mResultReceiver;
     private String mAddressOutput;
-    private boolean mAddressRequested;
     private TextView mLocationAddressTextView;
 
     public HomeActivity() {
@@ -528,7 +527,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void startIntentService() {
-        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        Intent intent = new Intent(this.getApplicationContext(), FetchAddressIntentService.class);
 
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mCurrentLocation);
@@ -635,6 +634,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private void displayAddressOutput() {
         mLocationAddressTextView.setText(mAddressOutput);
     }
+
     /**
      * Receiver for data sent from FetchAddressIntentService.
      */
@@ -644,7 +644,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
 
         /**
-         *  Receives data sent from FetchAddressIntentService and updates the UI in MainActivity.
+         * Receives data sent from FetchAddressIntentService and updates the UI in MainActivity.
          */
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -654,7 +654,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             displayAddressOutput();
 
             // Reset. Enable the Fetch Address button and stop showing the progress bar.
-            mAddressRequested = false;
         }
     }
 }
