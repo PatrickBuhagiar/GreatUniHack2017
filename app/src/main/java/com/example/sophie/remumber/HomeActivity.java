@@ -123,6 +123,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private String mLongitudeLabel;
     private String mLastUpdateTimeLabel;
 
+    private EditText mLocationField;
+
     public HomeActivity() {
     }
 
@@ -177,7 +179,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         });
 
         // Add listener for location change
-        EditText locationField = (EditText) findViewById(R.id.location_text);
+        mLocationField = (EditText) findViewById(R.id.location_text);
         Button locationButton = (Button) findViewById(R.id.location_button);
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -427,7 +429,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // Detail text, set by setContentText().
         builder.setSmallIcon(17301505);
         builder.setContentTitle("ReMUMber");
-        builder.setContentText("You just sent a text using ReMUMber!");
+        builder.setContentText("You should text your mum saying you've just arrived in "
+                + mLocationField.getText().toString() + "!");
 
         // Add sendSMS action
         Intent smsIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
