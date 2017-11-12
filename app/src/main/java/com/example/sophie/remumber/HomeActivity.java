@@ -493,7 +493,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // Add sendSMS action
         Intent locationIntent = new Intent(this.getApplicationContext(), NotifActivity.class);
         locationIntent.putExtra(NotifActivity.NOTIF_TYPE, locationNotifId);
-        locationIntent.putExtra(NotifActivity.LOCATION_KEY, mLocationField.getText().toString());
+        locationIntent.putExtra(NotifActivity.LOCATION_KEY, ", I've just arrived in " + mLocationField.getText().toString() + "!");
         locationIntent.putExtra(NotifActivity.PHONE_KEY, (new PrefManager(this).getNumber()));
         locationIntent.putExtra(NotifActivity.NAME_KEY, (new PrefManager(this).getName()));
         PendingIntent smsPendingIntent =
