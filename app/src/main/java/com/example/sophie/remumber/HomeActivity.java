@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,16 +29,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -58,7 +55,6 @@ import com.google.android.gms.tasks.Task;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -100,9 +96,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     // Represents a geographical location.
     private Location mCurrentLocation;
 
-    // Time when the location was updated represented as a String
-    private String mLastUpdateTime;
-
     private Boolean mRequestingLocationUpdates;
 
     static final String channel_id = "remumber_channel";
@@ -110,20 +103,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public int notifId = 1;
 
 
-    //UI SHIT for location
-    // UI Widgets.
-    private Button mStartUpdatesButton;
-    private Button mStopUpdatesButton;
-    private TextView mLastUpdateTimeTextView;
-    private TextView mLatitudeTextView;
-    private TextView mLongitudeTextView;
-
-    // Labels.
-    private String mLatitudeLabel;
-    private String mLongitudeLabel;
-    private String mLastUpdateTimeLabel;
-
     private EditText mLocationField;
+    private boolean mResultReceiver;
+    private boolean mLastLocation;
 
     public HomeActivity() {
     }
@@ -188,24 +170,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
-        //location UI
-        // Locate the UI widgets.
-        mStartUpdatesButton = (Button) findViewById(R.id.start_updates_button);
-        mStopUpdatesButton = (Button) findViewById(R.id.stop_updates_button);
-        mLatitudeTextView = (TextView) findViewById(R.id.latitude_text);
-        mLongitudeTextView = (TextView) findViewById(R.id.longitude_text);
-        mLastUpdateTimeTextView = (TextView) findViewById(R.id.last_update_time_text);
-
-        // Set labels.
-        mLatitudeLabel = getResources().getString(R.string.latitude_label);
-        mLongitudeLabel = getResources().getString(R.string.longitude_label);
-        mLastUpdateTimeLabel = getResources().getString(R.string.last_update_time_label);
-
-
         //Location initialisation
-        mRequestingLocationUpdates = false;
-        mLastUpdateTime = "";
+        mRequestingLocationUpdates = true;
 
         updateValuesFromBundle(savedInstanceState);
 
@@ -404,7 +370,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             requestPermissions();
         }
 
-        updateUI();
+        updateCurrentCityUI();
     }
 
     private void sendSMS(String phoneNumber, String message) {
@@ -507,9 +473,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 super.onLocationResult(locationResult);
 
                 mCurrentLocation = locationResult.getLastLocation();
-                System.out.println("CURRENT LOCATION: Altitude " + mCurrentLocation.getAltitude() + ", latitude: " + mCurrentLocation.getLatitude() + ", longitude: " + mCurrentLocation.getLongitude() + ", accuracy: " + mCurrentLocation.getAccuracy());
-                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-//                updateLocationUI();
+                updateCurrentCityUI();
             }
         };
     }
@@ -538,36 +502,30 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             // Update the value of mLastUpdateTime from the Bundle and update the UI.
             if (savedInstanceState.keySet().contains(KEY_LAST_UPDATED_TIME_STRING)) {
-                mLastUpdateTime = savedInstanceState.getString(KEY_LAST_UPDATED_TIME_STRING);
             }
-            updateUI();
+            updateCurrentCityUI();
         }
     }
 
-    private void updateUI() {
-        setButtonEnabledState();
-        updateLocationUI();
-    }
-
-    private void updateLocationUI() {
+    private void updateCurrentCityUI() {
         if (mCurrentLocation != null) {
-            mLatitudeTextView.setText(String.format(Locale.ENGLISH, "%s: %f", mLatitudeLabel,
-                    mCurrentLocation.getLatitude()));
-            mLongitudeTextView.setText(String.format(Locale.ENGLISH, "%s: %f", mLongitudeLabel,
-                    mCurrentLocation.getLongitude()));
-            mLastUpdateTimeTextView.setText(String.format(Locale.ENGLISH, "%s: %s",
-                    mLastUpdateTimeLabel, mLastUpdateTime));
+            System.out.println("CURRENT LOCATION: Altitude " + mCurrentLocation.getAltitude() + ", latitude: " + mCurrentLocation.getLatitude() + ", longitude: " + mCurrentLocation.getLongitude() + ", accuracy: " + mCurrentLocation.getAccuracy());
+            if (!Geocoder.isPresent()) {
+                return;
+            } else {
+                startIntentService();
+            }
+
         }
     }
 
-    private void setButtonEnabledState() {
-        if (mRequestingLocationUpdates) {
-            mStartUpdatesButton.setEnabled(false);
-            mStopUpdatesButton.setEnabled(true);
-        } else {
-            mStartUpdatesButton.setEnabled(true);
-            mStopUpdatesButton.setEnabled(false);
-        }
+    private void startIntentService() {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+        startService(intent);
+
     }
 
     /**
@@ -587,7 +545,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                                 mLocationCallback, Looper.myLooper());
 
-//                        updateUI();
+//                        updateCurrentCityUI();
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
@@ -615,7 +573,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 mRequestingLocationUpdates = false;
                         }
 
-//                        updateUI();
+//                        updateCurrentCityUI();
                     }
                 });
     }
@@ -627,24 +585,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public void startUpdatesButtonHandler(View view) {
         if (!mRequestingLocationUpdates) {
             mRequestingLocationUpdates = true;
-            setButtonsEnabledState();
             startLocationUpdates();
-        }
-    }
-
-    /**
-     * Disables both buttons when functionality is disabled due to insuffucient location settings.
-     * Otherwise ensures that only one button is enabled at any time. The Start Updates button is
-     * enabled if the user is not requesting location updates. The Stop Updates button is enabled
-     * if the user is requesting location updates.
-     */
-    private void setButtonsEnabledState() {
-        if (mRequestingLocationUpdates) {
-            mStartUpdatesButton.setEnabled(false);
-            mStopUpdatesButton.setEnabled(true);
-        } else {
-            mStartUpdatesButton.setEnabled(true);
-            mStopUpdatesButton.setEnabled(false);
         }
     }
 
@@ -675,7 +616,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         mRequestingLocationUpdates = false;
-                        setButtonsEnabledState();
                     }
                 });
     }
